@@ -14,20 +14,29 @@ export default class BallGraph extends React.Component{
                 x:0,
                 y:0,
                 display: false,
-                color: "#a9d423",
-                html:<p>I'm a p element</p>
+                color: this.props.tooltip.color || "#333333",
+                html: this.props.tooltip.html || <p>I'm a p element</p>,
+                width: this.props.tooltip.width || 70,
+                height: this.props.tooltip.height || 35,
+                margin: this.props.tooltip.margin || 5,
+                border_color: this.props.tooltip.border_color || "#eeeeee",
+                border_width: this.props.tooltip.border_width || 1
               }
     }
     this.updateChart = this.updateChart.bind(this);
   }
 
   updateTooltip(d){
+    console.log(d);
     this.setState({
       tooltip: {
         x: d.mouseX || 0,
         y: d.mouseY || 0,
-        display: d.display|| false,
-        html: d.html || <p>I'm a p element</p>
+        display: d.display || false,
+        html: d.html || this.state.tooltip.html,
+        width: this.state.tooltip.width,
+        height: this.state.tooltip.height,
+        margin: this.state.tooltip.margin
       }
     });
   }
@@ -54,44 +63,43 @@ export default class BallGraph extends React.Component{
     .attr('cy', d => yScale(d.y))
     .attr('r', d => rScale(d.r))
     .attr('class', (d,i) => this.props.id+'circle')
-    .style('fill', (d,i) => this.props.palette[i%this.props.palette.length])
-    .style('z-index', (d) => '-1');
+    .style('fill', (d,i) => this.props.palette[i%this.props.palette.length]);
 
-    let thisthis = this;
+    let component = this;
     let mouseX,mouseY,display,html;
 
     let circles = d3.select("#"+this.props.id).selectAll('circle')
                       .on('mouseover',function(d,i){
-                        console.log(this);
-                        console.log(d3.event);
+                        console.log("width: " + component.state.tooltip.width +
+                                    ", height: " + component.state.tooltip.height +
+                                    ", margin: " + component.state.tooltip.margin);
                         display = true;
                         html = <p style={{
                           color: "#ff00ff"
                         }}>{d.x*10}</p>;
                         mouseX = d3.event.pageX;
                         mouseY = d3.event.pageY;
-                        thisthis.updateTooltip({display:display,mouseX:mouseX,mouseY:mouseY,html:html})
+                        component.updateTooltip({display:display,mouseX:mouseX-component.state.tooltip.width + component.state.tooltip.margin
+                                               ,mouseY:mouseY-component.state.tooltip.height+component.state.tooltip.margin,html:html})
                       })
                       .on('mouseout',function(d,i){
                         console.log("mouse out");
                         display = false;
-                        // html = <p style={{
-                        //   color: "#ff00ff"
-                        // }}>{d.x*10}</p>;
-                        // mouseX = d3.event.pageX;
-                        // mouseY = d3.event.pageY;
-                        thisthis.updateTooltip({display:display,mouseX:0,mouseY:0,html:html})
-
+                        component.updateTooltip({display:display,mouseX:mouseX-component.state.tooltip.width + component.state.tooltip.margin
+                                               ,mouseY:mouseY-component.state.tooltip.height+component.state.tooltip.margin,html:html})
                       })
                       .on('mousemove',function(d,i){
+                        console.log("width: " + component.state.tooltip.width +
+                                    ", height: " + component.state.tooltip.height +
+                                    ", margin: " + component.state.tooltip.margin);
                         mouseX = d3.event.pageX;
                         mouseY = d3.event.pageY;
                         html = <p style={{
                           color: "#ff00ff"
                         }}>{d.x*10}</p>;
                         display = true;
-                        thisthis.updateTooltip({display:display,mouseX:mouseX,mouseY:mouseY,html:html})
-
+                        component.updateTooltip({display:display,mouseX:mouseX - component.state.tooltip.width + component.state.tooltip.margin
+                                               ,mouseY:mouseY-component.state.tooltip.height + component.state.tooltip.margin,html:html})
                       });
     graph.exit().remove();
   }
@@ -103,10 +111,9 @@ export default class BallGraph extends React.Component{
       return <InfoBlock id={this.props.id + "_tooltip"} position={{x:this.state.tooltip.x, y: this.state.tooltip.y}}
                  display={this.state.tooltip.display}
                  html={this.state.tooltip.html}
-                 color={this.props.color}
-                 border_color="#000000"
-                 border_width="1px"
-                 zIndex="-2"/>
+                 color={this.state.tooltip.color}
+                 border_color={this.state.tooltip.border_color}
+                 border_width={this.state.tooltip.border_width}/>
     };
   }
 

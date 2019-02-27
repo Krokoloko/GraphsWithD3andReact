@@ -10,14 +10,11 @@ export default class InfoBlock extends React.Component{
       height : this.props.height || 35,
       x: this.props.position.x || 100,
       y: this.props.position.y || 100,
-      zIndex: this.props.zIndex || 0,
     }
   }
 
   render(){
-    console.log(this.props.position.x + " : " + this.props.position.y);
-
-      return(<>
+      return(<g>
               <rect x={this.props.position.x} y={this.props.position.y}
                     width={this.state.width} height={this.state.height}
                     style={{
@@ -25,19 +22,17 @@ export default class InfoBlock extends React.Component{
                               fill: this.props.color || "#00001f",
                               stroke_width: this.props.border_width || "1px",
                               stroke: this.props.border_color || "#fff0ff",
-                              zIndex: this.state.zIndex
-                           }
-              }     class={this.props.id}>
+                           }}
+                    class={this.props.id}>
               </rect>
               <foreignObject width={this.state.width} height={this.state.height}
               x={this.props.position.x} y={this.props.position.y}
               style={{
                 display : this.props.display ? 'inline' : 'none',
-                zIndex : this.state.zIndex
               }}
               class={this.props.id}>
                 {this.props.html}
               </foreignObject>
-             </>);
+             </g>);
   }
 }
