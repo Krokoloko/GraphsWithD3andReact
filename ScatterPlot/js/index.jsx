@@ -51,15 +51,14 @@ function loadGraph(e){
       return <BallGraph id="ball1" palette={color} data={generateRandomData(20)} width={500} height={500}
               tooltip={{height:30,width:80,margin:3,border_width:2}}/>;
     case "Ball":
-      return <BarGraph id="bar1" palette={color} data={data3} width={500}
-              height={500} maxValue={Math.max.apply(Math, data3.map(function(o){return o.income}))}/>;
+      return null;
   }
 }
 console.log(data3);
 ReactDOM.render(
 
   <div>
-    <BarGraph id="bar1" palette={["#af0000","#10dbcf"]} data={data3} width={500} height={500}
+    <BarGraph id="bar1" palette={["#af0000","#10dbcf"]} data={data3} width={500} height={500} transitionTime={2000}
      maxValue={{x:500 , y: Math.max.apply(Math, data3.map(function(o){return o.income})),
                 c:  Math.max.apply(Math, data3.map(function(o){return o.income}))}}
      tooltip={{}}/>
