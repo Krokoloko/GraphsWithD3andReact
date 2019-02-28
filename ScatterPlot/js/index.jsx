@@ -7,7 +7,7 @@ import DropDown from "./Menu/DropDown";
 let data1 = [{person: "Pieter",income: 5000},{person:"Jan",income:4000},{person:"Karel",income:8000}];
 let data2 = [{person: "Lisa",income: 6000},{person:"Merel",income:5000},{person:"Amy",income:4000}];
 let data3 = [...data1, ...data2,{person:"Daniel", income: 2000},{person: "Jerrey", income: 1000},
-             {person: "Lilly", income: 500}, {person: "Isabelle", income: 3000}];
+             {person: "Lilly", income: 500}, {person: "Isabelle", income: 3000},{person: "Elroy", income: 10000}];
 let color = ["#173f5f","#20639b","#3caea3","#f6d55c","#ed553b"];
 
 let state,oldState = "Scatterplot";
@@ -59,7 +59,7 @@ ReactDOM.render(
 
   <div>
     <BarGraph id="bar1" palette={["#af0000","#10dbcf"]} data={data3} width={500} height={500} transitionTime={2000}
-     maxValue={{x:500 , y: Math.max.apply(Math, data3.map(function(o){return o.income})),
+     maxValue={{x:500 , y: Math.max.apply(Math, data3.map(function(o){return o.income}))*1.1,
                 c:  Math.max.apply(Math, data3.map(function(o){return o.income}))}}
      tooltip={{}}/>
   </div>,

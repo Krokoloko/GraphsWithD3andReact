@@ -54,11 +54,12 @@ export default class BarGraph extends React.Component{
     //Calculating the width of the bars including margin
     let barWidth = (this.state.width - 2*(this.state.margin*this.props.data.length)+this.state.margin)/this.props.data.length;
     //initialises the canvas
-    let xAxis = d3.axisLeft(xScale);
+    let yAxis = d3.axisLeft(d3.scaleLinear().domain([this.state.maxScale.y,0]).range([0,this.state.height]));
 
     let canvas = d3.select("#" + this.state.id)
                    .select("." + this.props.id + "_group")
-                   .attr("transform", "translate(" + (this.state.width/10+"") + ",0)")
+                   .attr("transform", "translate(" + (this.state.width/10+"") + ",5)")
+                   .call(yAxis)
                    .selectAll('rect')
                    .data(this.props.data);
 
