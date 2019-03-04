@@ -6,13 +6,19 @@ export default class BarGraph extends React.Component{
   constructor(props){
     super(props);
     this.state = {
-      id: this.props.id,
       height: this.props.height || 500,
       width: this.props.width || 500,
-      margin: this.props.margin || 5,
+      barMargin: this.props.barMargin || 5,
       maxScale: this.props.maxValue || {x:this.props.width,y:this.props.height},
       transitionTime: this.props.transitionTime || 1500,
       color: this.props.palette || ["darkblue","lightgreen"],
+      axis:{
+        margin:{
+          x: this.props.axis.margin.x || 20,
+          y: this.props.axis.margin.y || 40
+        },
+        textRotation: this.props.textRotation || 45
+      },
       tooltip: {
         x:0,
         y:0,
@@ -45,41 +51,65 @@ export default class BarGraph extends React.Component{
   //they just search for the id of the svg element
   //and d3 does all the work in the way you loop through the svg elements.
   generateBars (){
+
     //Scales
-    let xScale = d3.scaleLinear().domain([0,this.state.maxScale.x]).range([0,this.state.width]);
+    let xScale = d3.scaleLinear().domain([0,this.state.maxScale.x]).range([0,this.state.width-this.state.axis.margin.x]);
     let yScale = d3.scaleLinear().domain([0,this.state.maxScale.y]).range([0,this.state.height]);
+
     //returns a color within a range
     let cScale = d3.scaleLinear().domain([0,this.state.maxScale.c]).range([this.state.color[0],this.state.color[1]]);
 
     //Calculating the width of the bars including margin
-    let barWidth = (this.state.width - 2*(this.state.margin*this.props.data.length)+this.state.margin)/this.props.data.length;
-    //initialises the canvas
+    let barWidth = (this.state.width - 2*(this.state.barMargin*this.props.data.length)+this.state.barMargin)/this.props.data.length;
+
     let yAxis = d3.axisLeft(d3.scaleLinear().domain([this.state.maxScale.y,0]).range([0,this.state.height]));
 
-    let canvas = d3.select("#" + this.state.id)
+
+
+    let axis = d3.select("#" + this.props.id)
+                 .select("." + this.props.id + "_group")
+                 .select("." + this.props.id + "_rectangles")
+                 .call(yAxis);
+
+
+    let canvas = d3.select("#" + this.props.id)
                    .select("." + this.props.id + "_group")
-                   .attr("transform", "translate(" + (this.state.width/10+"") + ",5)")
-                   .call(yAxis)
+                   .attr("transform", "translate(" + this.state.axis.margin.x + ","+ -(this.state.axis.margin.y) +")")
+                   .select("." + this.props.id + "_rectangles")
                    .selectAll('rect')
                    .data(this.props.data);
-
+    console.log(this.props.id + "_labels");
+    let labels = d3.select("#" + this.props.id)
+                   .select("." + this.props.id + "_group")
+                   .select("." + this.props.id + "_labels")
+                   // .attr("transform", "rotate("+ 45 +")")
+                   .selectAll("text")
+                   .data(this.props.data);
 
     //draws the svg and after the merge function it will activate its animation
     canvas.enter()
           .append('rect')
           .attr('class', this.props.id + "_rect")
           .attr("width", barWidth)
-          .attr("height", d => yScale(d.income))
-          .attr("x", (d,i) => this.state.margin + (barWidth*(i)+this.state.margin*(i)))
-          .attr("y", (d) => this.state.height)
+          .attr("height", 0)
+          .attr("x", (d,i) => this.state.barMargin + (barWidth*(i)+this.state.barMargin*(i)))
+          .attr("y", this.state.height)
           .merge(canvas)
           .transition()
           .duration(this.state.transitionTime)
           .attr("width", barWidth)
           .attr("height", d => yScale(d.income))
-          .attr("x", (d,i) => this.state.margin + (barWidth*(i)+this.state.margin*(i)))
+          .attr("x", (d,i) => this.state.barMargin + (barWidth*(i)+this.state.barMargin*(i)))
           .attr("y", d => this.state.height-yScale(d.income))
-          .style("fill", d => cScale(d.income))
+          .style("fill", d => cScale(d.income));
+
+    labels.enter()
+          .append("text")
+          .attr("class", this.props.id + "_label")
+          .attr("transform",(d,i) => "translate(" + (this.state.barMargin+barWidth*i+this.state.barMargin*i) +
+          "," +  (this.state.height+this.state.axis.margin.y*0.2) + ")rotate("+ this.state.axis.textRotation +")")
+          .text(d => d.person)
+          ;
 
     let component = this;
     let display,mouseX,mouseY,html;
@@ -137,6 +167,12 @@ export default class BarGraph extends React.Component{
     return(
         <svg id={this.props.id} height={this.state.height} width={this.state.width}>
           <g class={this.props.id + "_group"}>
+            <g class={this.props.id + "_rectangles"}>
+
+            </g>
+            <g class={this.props.id + "_labels"}>
+
+            </g>
           </g>
           {this.isSvgLoaded()}
         </svg>

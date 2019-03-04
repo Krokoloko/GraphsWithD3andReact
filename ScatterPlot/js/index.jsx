@@ -59,9 +59,10 @@ ReactDOM.render(
 
   <div>
     <BarGraph id="bar1" palette={["#af0000","#10dbcf"]} data={data3} width={500} height={500} transitionTime={2000}
-     maxValue={{x:500 , y: Math.max.apply(Math, data3.map(function(o){return o.income}))*1.1,
-                c:  Math.max.apply(Math, data3.map(function(o){return o.income}))}}
-     tooltip={{}}/>
+     maxValue={{x:500 , y: Math.max.apply(Math, data3.map(function(o){return o.income}))*1.2,
+                c:  Math.max.apply(Math, data3.map(function(o){return o.income}))*1.2}}
+     tooltip={{}}
+     axis={{margin:{x:50,y:50}}}/>
   </div>,
   document.getElementById("content")
 );
