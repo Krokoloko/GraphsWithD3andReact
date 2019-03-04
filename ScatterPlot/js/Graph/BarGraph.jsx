@@ -12,6 +12,7 @@ export default class BarGraph extends React.Component{
       maxScale: this.props.maxValue || {x:this.props.width,y:this.props.height},
       transitionTime: this.props.transitionTime || 1500,
       color: this.props.palette || ["darkblue","lightgreen"],
+      selected: Array(this.props.data.length).fill(false),
       axis:{
         margin:{
           x: this.props.axis.margin.x || 20,
@@ -44,6 +45,28 @@ export default class BarGraph extends React.Component{
         html: d.html || this.state.tooltip.html
       }
     })
+  }
+  //rgb(135, 55, 52)
+  lowerAplha(c,b,bools){
+    let loweredColor = c;
+    let tru;
+    bools.forEach(function(e){
+      if(!e && !tru){
+        tru = false;
+      }else{
+        tru = true;
+      }
+    });
+    console.log("it " + ((!b && tru) ? "is" : "isn't")+" aplha");
+    if(!b && tru){
+      console.log(loweredColor);
+      let split = c.split("(");
+      loweredColor = split[0].concat("a","(").concat(loweredColor.slice(c.indexOf("(")+1,c.length-1).concat(",0.4",")"));
+      console.log(loweredColor);
+      return loweredColor;
+    }else{
+      return c;
+    }
   }
 
   //These generate bars with the d3 libary
@@ -78,14 +101,12 @@ export default class BarGraph extends React.Component{
                    .select("." + this.props.id + "_rectangles")
                    .selectAll('rect')
                    .data(this.props.data);
-    console.log(this.props.id + "_labels");
     let labels = d3.select("#" + this.props.id)
                    .select("." + this.props.id + "_group")
                    .select("." + this.props.id + "_labels")
                    // .attr("transform", "rotate("+ 45 +")")
                    .selectAll("text")
                    .data(this.props.data);
-
     //draws the svg and after the merge function it will activate its animation
     canvas.enter()
           .append('rect')
@@ -94,6 +115,7 @@ export default class BarGraph extends React.Component{
           .attr("height", 0)
           .attr("x", (d,i) => this.state.barMargin + (barWidth*(i)+this.state.barMargin*(i)))
           .attr("y", this.state.height)
+          .style("fill", (d,i) => this.lowerAplha(cScale(d.income),this.state.selected[i],this.state.selected))
           .merge(canvas)
           .transition()
           .duration(this.state.transitionTime)
@@ -101,7 +123,7 @@ export default class BarGraph extends React.Component{
           .attr("height", d => yScale(d.income))
           .attr("x", (d,i) => this.state.barMargin + (barWidth*(i)+this.state.barMargin*(i)))
           .attr("y", d => this.state.height-yScale(d.income))
-          .style("fill", d => cScale(d.income));
+          .style("fill", (d,i) => this.lowerAplha(cScale(d.income),this.state.selected[i],this.state.selected));
 
     labels.enter()
           .append("text")
@@ -136,6 +158,13 @@ export default class BarGraph extends React.Component{
                   .on("mouseout", function(d,i){
                     display = false;
                     component.updateTooltip({display:display,mouseX:mouseX,mouseY:mouseY,html:html});
+                  })
+                  .on("mousedown", function(d,i){
+                    let selections = component.state.selected;
+                    selections[i] = !component.state.selected[i];
+                    component.setState({
+                      selected: selections,
+                    });
                   })
     canvas.exit().remove();
   }
