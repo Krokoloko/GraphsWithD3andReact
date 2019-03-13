@@ -20,49 +20,16 @@ function generateRandomData(items){
   }
   return returnData;
 }
-function switchValue(e){
-  console.log(e);
-  switch (e.value) {
-    case "Scatterplot":
-      state = e.value;
-      break;
-    case "Bar":
-      state = e.value;
-      break;
-    default:
-      state = "none";
-      break;
-  }
-}
 
-// function isUpdated(){
-//   if(state != oldState){
-//     oldState = state;
-//     return false;
-//   }else{
-//     return true;
-//   }
-// }
-
-function loadGraph(e){
-  console.log("load the graph");
-  switch(e){
-    case "Scatterplot":
-      return <BallGraph id="ball1" palette={color} data={generateRandomData(20)} width={500} height={500}
-              tooltip={{height:30,width:80,margin:3,border_width:2}}/>;
-    case "Ball":
-      return null;
-  }
-}
-console.log(data3);
 ReactDOM.render(
-
   <div>
-    <BarGraph id="bar1" palette={["#af0000","#10dbcf"]} data={data3} width={500} height={500} transitionTime={2000}
+    <BarGraph id="bar1" class="barGraph" palette={["#5a0000","#a0ebce"]} data={data3} width={500} height={500} transitionTime={2000}
      maxValue={{x:500 , y: Math.max.apply(Math, data3.map(function(o){return o.income}))*1.2,
                 c:  Math.max.apply(Math, data3.map(function(o){return o.income}))*1.2}}
      tooltip={{}}
      axis={{margin:{x:50,y:50}}}/>
+     <BallGraph id="ball1" palette={color} data={generateRandomData(20)} width={500} height={500}
+             tooltip={{height:30,width:80,margin:3,border_width:2}}/>
   </div>,
   document.getElementById("content")
 );

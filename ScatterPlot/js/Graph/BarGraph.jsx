@@ -1,6 +1,6 @@
 import React from "react";
 import InfoBlock from "./InfoBlock"
-const d3 = require('d3');
+import * as d3 from 'd3';
 
 export default class BarGraph extends React.Component{
 
@@ -94,7 +94,7 @@ export default class BarGraph extends React.Component{
                                                       color: "black",
                                                       fontSize: "10px" ,
                                                     }}>
-                                                    {d.person + " :" + d.income}
+                                                    {d.person + ": " + d.income}
                                                     </p>;
                                                     component.updateTooltip({display:display, mouseX:mouseX,mouseY:mouseY,html:html});
                                                   })
@@ -135,13 +135,10 @@ export default class BarGraph extends React.Component{
 
     let yAxis = d3.axisLeft(d3.scaleLinear().domain([this.state.maxScale.y,0]).range([0,this.state.height]));
 
-
-
     let axis = d3.select("#" + this.props.id)
                  .select("." + this.props.id + "_group")
                  .select("." + this.props.id + "_rectangles")
                  .call(yAxis);
-
 
     let canvas = d3.select("#" + this.props.id)
                    .select("." + this.props.id + "_group")
@@ -178,11 +175,7 @@ export default class BarGraph extends React.Component{
           .attr("class", this.props.id + "_label")
           .attr("transform",(d,i) => "translate(" + (this.state.barMargin+barWidth*i+this.state.barMargin*i) +
           "," +  (this.state.height+this.state.axis.margin.y*0.2) + ")rotate("+ this.state.axis.textRotation +")")
-          .text(d => d.person)
-          ;
-
-    let component = this;
-    let display,mouseX,mouseY,html;
+          .text(d => d.person);
 
     this.updateEvents();
 
@@ -238,7 +231,7 @@ export default class BarGraph extends React.Component{
 
   render () {
     return(
-        <svg id={this.props.id} height={this.state.height} width={this.state.width}>
+        <svg id={this.props.id} class={this.props.class} height={this.state.height} width={this.state.width}>
           <g class={this.props.id + "_group"}>
             <g class={this.props.id + "_rectangles"}>
 

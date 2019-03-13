@@ -1,5 +1,5 @@
 import React from 'react';
-const d3 = require('d3');
+import * as d3 from 'd3';
 
 export default class InfoBlock extends React.Component{
   constructor(props){

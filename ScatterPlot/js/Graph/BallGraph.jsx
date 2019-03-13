@@ -1,8 +1,6 @@
 import React from 'react';
 import InfoBlock from './InfoBlock';
-const d3 = require('d3');
-
-
+import * as d3 from 'd3';
 
 export default class BallGraph extends React.Component{
   constructor(props){
