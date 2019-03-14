@@ -21,7 +21,6 @@ export default class BallGraph extends React.Component{
                 border_width: this.props.tooltip.border_width || 1
               }
     }
-    this.updateChart = this.updateChart.bind(this);
   }
 
   updateTooltip(d){
@@ -30,7 +29,7 @@ export default class BallGraph extends React.Component{
       tooltip: {
         x: d.mouseX || 0,
         y: d.mouseY || 0,
-        display: d.display || false,
+        display: d.display,
         html: d.html || this.state.tooltip.html,
         width: this.state.tooltip.width,
         height: this.state.tooltip.height,
@@ -39,7 +38,7 @@ export default class BallGraph extends React.Component{
     });
   }
 
-  updateChart(){
+  initialiseChart(){
     let maxRadius = (this.props.width * this.props.height)/10000;
     let xScale = d3.scaleLinear().domain([0,1]).range([maxRadius,this.props.width-maxRadius]);
     let yScale = d3.scaleLinear().domain([0,1]).range([maxRadius,this.props.height-maxRadius]);
@@ -68,9 +67,6 @@ export default class BallGraph extends React.Component{
 
     let circles = d3.select("#"+this.props.id).selectAll('circle')
                       .on('mouseover',function(d,i){
-                        console.log("width: " + component.state.tooltip.width +
-                                    ", height: " + component.state.tooltip.height +
-                                    ", margin: " + component.state.tooltip.margin);
                         display = true;
                         html = <p style={{
                           color: "#ff00ff"
@@ -81,21 +77,17 @@ export default class BallGraph extends React.Component{
                                                ,mouseY:mouseY-component.state.tooltip.height+component.state.tooltip.margin,html:html})
                       })
                       .on('mouseout',function(d,i){
-                        console.log("mouse out");
                         display = false;
                         component.updateTooltip({display:display,mouseX:mouseX-component.state.tooltip.width + component.state.tooltip.margin
                                                ,mouseY:mouseY-component.state.tooltip.height+component.state.tooltip.margin,html:html})
                       })
                       .on('mousemove',function(d,i){
-                        console.log("width: " + component.state.tooltip.width +
-                                    ", height: " + component.state.tooltip.height +
-                                    ", margin: " + component.state.tooltip.margin);
                         mouseX = d3.event.pageX;
                         mouseY = d3.event.pageY;
+                        display = true;
                         html = <p style={{
                           color: "#ff00ff"
                         }}>{d.x*10}</p>;
-                        display = true;
                         component.updateTooltip({display:display,mouseX:mouseX - component.state.tooltip.width + component.state.tooltip.margin
                                                ,mouseY:mouseY-component.state.tooltip.height + component.state.tooltip.margin,html:html})
                       });
@@ -104,6 +96,7 @@ export default class BallGraph extends React.Component{
 
   isSvgLoaded(){
     if(d3.select("#" + this.props.id).empty()){
+      console.log("empty");
       return null;
     }else{
       return <InfoBlock id={this.props.id + "_tooltip"} position={{x:this.state.tooltip.x, y: this.state.tooltip.y}}
@@ -116,12 +109,10 @@ export default class BallGraph extends React.Component{
   }
 
   componentDidMount(){
-    this.updateChart();
+    this.initialiseChart();
   }
   componentDidUpdate(){
-    if(this.props.data != this.state.data){
-      this.updateChart();
-    }
+
   }
 
   render(){
