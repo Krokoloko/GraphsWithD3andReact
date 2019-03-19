@@ -61,25 +61,6 @@ export default class BarGraph extends React.Component{
     })
   }
 
-  lowerAplha(c,b,bools){
-    let loweredColor = c;
-    let tru;
-    bools.forEach(function(e){
-      if(!e && !tru){
-        tru = false;
-      }else{
-        tru = true;
-      }
-    });
-    if(!b && tru){
-      let split = c.split("(");
-      loweredColor = split[0].concat("a","(").concat(loweredColor.slice(c.indexOf("(")+1,c.length-1).concat(",0.4",")"));
-      return loweredColor;
-    }else{
-      return c;
-    }
-  }
-
   updateEvents(){
     let component = this;
     let display,mouseX,mouseY,html;
@@ -108,13 +89,13 @@ export default class BarGraph extends React.Component{
                                                     display = false;
                                                     component.updateTooltip({display:display,mouseX:mouseX,mouseY:mouseY,html:html});
                                                   })
-                                                  .on("mousedown", function(d,i){
-                                                    let selections = component.state.selected;
-                                                    selections[i] = !component.state.selected[i];
-                                                    component.setState({
-                                                      selected: selections,
-                                                    });
-                                                    })
+                                                  // .on("mousedown", function(d,i){
+                                                  //   let selections = component.state.selected;
+                                                  //   selections[i] = !component.state.selected[i];
+                                                  //   component.setState({
+                                                  //     selected: selections,
+                                                  //   });
+                                                  //   })
   }
 
   //These generate bars with the d3 libary

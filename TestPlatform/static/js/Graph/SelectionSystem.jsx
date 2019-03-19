@@ -4,20 +4,24 @@ import * as d3 from 'd3';
 export default class SelectionSystem extends React.Component{
   constructor(props){
     super(props);
+    let time = new Date();
     this.state = {
-      id : this.props.id || "SelectionSystem_" + Date.getTime(),
+      id : this.props.id || "SelectionSystem_" + time.getTime(),
       //This will return the elements based on these functions.
       //Note: these delegates are just arrays with functions.
       accesEntries: [
-        ...this.props.accesEntriesDelegate || ...[function(){return null}]
+        ...this.props.accesEntriesDelegate || [function(){return null}]
+      ],
+      toggleEntry: [
+        ...this.props.onToggleEntryDelegate || [function(){}]
       ],
       //This is a event that will trigger when you select a element.
       onSelectEntry: [
-        ...this.props.selectEntriesDelegate || ...[function(){}]
+        ...this.props.selectEntriesDelegate || [function(){}]
       ],
       //This is a event that will trigger when you unSelect a element.
       onUnselectEntry: [
-        ...this.props.unselectEntriesDelegate || ...[function(){}]
+        ...this.props.unselectEntriesDelegate || [function(){}]
       ],
       //Holds all the elements that can be selected.
       elements: [
@@ -29,7 +33,7 @@ export default class SelectionSystem extends React.Component{
       ]
     }
   }
-  //Note: the parameters parameter is a object that holds the parameter for the function.
+  //Note: the parameters parameter is a object that holds the parameters for the function.
   callDelegate(delegate,parameters){
     let give = [];
     let functypes = [];
@@ -64,30 +68,43 @@ export default class SelectionSystem extends React.Component{
 
   getSelectedElements(){
     let elements = [];
+    let component = this;
     this.state.elements.forEach(function(d,i){
-      elements.push({name: this.state.graphs[i].getAttribute("id"),data:[]);
-      this.state.elements[i].data.forEach(function(e){
-        if(e.getAttribute("selected")){
+      elements.push({data:[]});
+      d.data.forEach(function(e){
+        console.log(e.getAttribute("selected"));
+        if(e.getAttribute("selected") == "true"){
           elements[i].data.push(e);
         }
       });
     });
+    console.log("elements that are selected");
     console.log(elements);
     return elements;
   }
 
   componentDidMount(){
-    let elements = callDelegate(this.state.accesEntries,null);
+    let elements = this.callDelegate(this.state.accesEntries,null);
     let component = this;
     elements.forEach(function(d,i){
       d.data.forEach(function(e,j){
         d3.select(e)
           .attr('selected', false)
           .on('mousedown',function(){
-            if(e.getAttribute("selected")){
+            if(e.getAttribute("selected") == "false"){
+              component.state.onToggle[i]({element: e, elements: component.state.elements, selected: component.state.selectedElements});
               component.state.onSelectEntry[i]({element: e, elements: component.state.elements, selected: component.state.selectedElements});
+              component.setState({
+                ...component.state,
+                selectedElements: component.getSelectedElements()
+              });
             }else{
+              component.state.onToggle[i]({element: e, elements: component.state.element, selected: component.state.selectedElements});
               component.state.onUnselectEntry[i]({element: e, elements: component.state.elements, selected: component.state.selectedElements});
+              component.setState({
+                ...component.state,
+                selectedElements: component.getSelectedElements()
+              });
             }
           })
           ;
@@ -101,10 +118,7 @@ export default class SelectionSystem extends React.Component{
   }
 
   componentDidUpdate(){
-    this.setState({
-      ...this.state,
-      selectedElements: getSelectedElements();
-    });
+
   }
 
   render(){

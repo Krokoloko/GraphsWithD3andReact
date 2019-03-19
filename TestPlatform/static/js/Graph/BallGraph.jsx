@@ -21,14 +21,14 @@ export default class BallGraph extends React.Component{
                 border_width: this.props.tooltip.border_width || 1
               }
     }
+    console.log(this.state.data);
   }
 
   updateTooltip(d){
-    console.log(d);
     this.setState({
       tooltip: {
-        x: d.mouseX || 0,
-        y: d.mouseY || 0,
+        x: Math.min(this.props.width-this.state.tooltip.width,Math.max(d.mouseX,0)) || this.state.tooltip.x,
+        y: Math.min(this.props.height-this.state.tooltip.height,Math.max(d.mouseY,0)) || this.state.tooltip.y,
         display: d.display,
         html: d.html || this.state.tooltip.html,
         width: this.state.tooltip.width,
@@ -40,13 +40,15 @@ export default class BallGraph extends React.Component{
 
   initialiseChart(){
     let maxRadius = (this.props.width * this.props.height)/10000;
+    let minRadius = maxRadius*0.6;
     let xScale = d3.scaleLinear().domain([0,1]).range([maxRadius,this.props.width-maxRadius]);
     let yScale = d3.scaleLinear().domain([0,1]).range([maxRadius,this.props.height-maxRadius]);
-    let rScale = d3.scaleLinear().domain([0,1]).range([maxRadius/10, maxRadius]);
+    let rScale = d3.scaleLinear().domain([0,1]).range([minRadius, maxRadius]);
 
     let graph = d3.select("#" + this.props.id)
     .selectAll('circle')
     .data(this.state.data);
+    console.log(graph);
     graph.enter()
     .append('circle')
     .attr('cx', d => xScale(d.x))
@@ -70,9 +72,9 @@ export default class BallGraph extends React.Component{
                         display = true;
                         html = <p style={{
                           color: "#ff00ff"
-                        }}>{d.x*10}</p>;
-                        mouseX = d3.event.pageX;
-                        mouseY = d3.event.pageY;
+                        }}>{d.name}</p>;
+                        mouseX = d3.event.offsetX;
+                        mouseY = d3.event.offsetY;
                         component.updateTooltip({display:display,mouseX:mouseX-component.state.tooltip.width + component.state.tooltip.margin
                                                ,mouseY:mouseY-component.state.tooltip.height+component.state.tooltip.margin,html:html})
                       })
@@ -82,12 +84,12 @@ export default class BallGraph extends React.Component{
                                                ,mouseY:mouseY-component.state.tooltip.height+component.state.tooltip.margin,html:html})
                       })
                       .on('mousemove',function(d,i){
-                        mouseX = d3.event.pageX;
-                        mouseY = d3.event.pageY;
+                        mouseX = d3.event.offsetX;
+                        mouseY = d3.event.offsetY;
                         display = true;
                         html = <p style={{
                           color: "#ff00ff"
-                        }}>{d.x*10}</p>;
+                        }}>{d.name}</p>;
                         component.updateTooltip({display:display,mouseX:mouseX - component.state.tooltip.width + component.state.tooltip.margin
                                                ,mouseY:mouseY-component.state.tooltip.height + component.state.tooltip.margin,html:html})
                       });

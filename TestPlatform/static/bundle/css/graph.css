@@ -8,3 +8,7 @@
   border-width: 5px;
   border-style: solid;
 }
+.ball1circle{
+  stroke-width: 2px;
+  stroke: #eeddff;
+}
