@@ -23,12 +23,13 @@ function arraysEqual(arr1, arr2) {
   return true;
 }
 
-function emptyArray(array){
-  array.forEach(
-    function() {
-      emptyArr.push({data:[]});
-    }
-  );
+function emptyArray(length,val){
+  let emptyArr = []
+  let emptyVal = val || null;
+  for(let i = 0;i < length; i++) {
+    emptyArr.push(emptyVal);
+  }
+  return emptyArr;
 }
 
 function generateRandomData(items,radius){
@@ -40,34 +41,32 @@ function generateRandomData(items,radius){
   return returnData;
 }
 
-lowerAplha(c,b){
+function lowerAplha(c,bool){
   let loweredColor = c;
-  if(b){
-    let split = c.split("(");
-    loweredColor = split[0].concat("a","(").concat(loweredColor.slice(c.indexOf("(")+1,c.length-1).concat(",0.4",")"));
-    return loweredColor;
-  }else{
-    let split = c.split("(");
-    loweredColor = split[0].concat("a","(").concat(loweredColor.slice(c.indexOf("(")+1,c.length-1).concat(",0",")"));
-    return loweredColor;
-  }
+
+  let r = loweredColor.split(",")[0].slice(c.indexOf("(")+1);
+  let g = loweredColor.split(",")[1];
+  let b = loweredColor.split(",")[2].replace(")","");
+
+  let a = bool ? "1" : "0.3";
+  loweredColor = "rgba(" + r + "," + g + "," + b + "," + a + ")";
+  return loweredColor;
 }
 
 //The logics when to toggle a selection.
 function handleOnToggle(par){
-  let emptyArr = [];
   let empty = true;
   let state = par.element.getAttribute("selected");
 
-
   if(state == "true"){
     par.element.setAttribute("selected", false);
+    return;
   }
   //Checks if nothing is selected
-  par.selectedElements.forEach(function(e){
-    if(!arraysEqual(e.data,emptyArr) && empty){
+  par.selected.forEach(function(e){
+    if(!arraysEqual(e.data,emptyArray(e.data.length)) && empty){
       empty = false;
-      break;
+      return;
     }
   });
   // If nothing is selected then it will automaticly toggle the requested element as selected.
@@ -77,26 +76,28 @@ function handleOnToggle(par){
     let selectedGraphIndex;
     par.elements.forEach(
     function(e,i){
-      let found = e.data.find(par.element);
+      let found = e.data.find(function(element){
+        return element == par.element
+      });
       if(found){
         selectedGraphIndex = i;
       }
     });
     //This variable checks if there are any other graphs that hold selected elements.
     let otherGraphsAreSelected = false;
-    par.selectedElements.forEach(
+    par.selected.forEach(
+
       function(e,i){
         if(i == selectedGraphIndex){
           return
         }
-        if(!arraysEqual(i.data, emptyArray(i.data))){
+        if(!arraysEqual(e.data, emptyArray(e.data.length))){
           otherGraphsAreSelected = true;
-          break;
         }
-      });
-      if(countSelected[selectedGraphIndex].data <= 3 && !otherGraphsAreSelected){
-        par.element.setAttribute("selected", true);
-      }
+    });
+    if(par.selected[selectedGraphIndex].data.length <= 3 && !otherGraphsAreSelected){
+      par.element.setAttribute("selected", true);
+    }
   }
 }
 
@@ -118,36 +119,46 @@ let accesEntries = [
 let onSelect = [
   function(par){
     let locald3 = d3;
-    par.elements[0].forEach(function(e,i){
-      if(par.selectedElements[0].find(e)){
-        return
-      }
+    let nothingSelected = false;
+    if(arraysEqual(par.selected[0].data,emptyArray(par.selected[0].data.length))){
+      nothingSelected = true;
+    }
+    par.elements[0].data.forEach(function(e,i){
       locald3.select(e)
-                .style("fill", d3.select(this))
-                .merge(d3.select("#bar1")
+                .style("fill", locald3.select(this))
+                .merge(locald3.select("#bar1")
                          .select(".bar1_group")
                          .select(".bar1_rectangles")
                          .selectAll("rect"))
                 .transition()
                 .duration(1000)
-                .style("fill", (d,i) => lowerAplha(e.style.fill,(e.getAttribute("selected").toLowerCase()==="true")));
-
+                .style("fill", (d,i) => lowerAplha(e.style.fill,((e.getAttribute("selected").toLowerCase()==="true")|| nothingSelected)));
     });
+    par.elements[1].data.forEach(function(e,i){
+      // if (par.selected[1].) {
+      //
+      // }
+      let ifSelectedHasTheName = function(name){
+        if(par.selected[0].data.find(function(d){
+          return locald3.select(d).data()[0].person == name
+        })){
+          return true
+        }else return false;
+      }
+      //When selected has the same name as the circle
+      locald3.select(e)
+              .style("stroke-width",locald3.select(this))
+              .style("stroke", locald3.select(this))
+              .merge(locald3.select("ball1")
+                        .selectAll("circle"))
+              .transition()
+              .duration(1000)
+              .style("stroke-width", (d) => (ifSelectedHasTheName(d.name) ? "10px" : "2px"))
+              .style("stroke", (d) => (ifSelectedHasTheName(d.name) ? "#b0000b" : "#000000"))
+    })
   },
   function(par){
-    console.log(par);
-    console.log("selected");
-  }
-]
-let onUnSelect = [
-  function(par){
-    par.element.setAttribute("selected", false);
-    console.log("unselect");
-  }
-  ,
-  function(par){
-    par.element.setAttribute("selected", false);
-    console.log("unselect");
+    let locald3 = d3;
   }
 ]
 
@@ -168,7 +179,6 @@ function getJsonAsObject(path,callback){
 getJsonAsObject(window.location.href + "worker_data",
 function(obj){
   data = obj;
-  console.log(data);
   ReactDOM.render(
     <div>
     <BarGraph id="bar1" class="barGraph" palette={["#5a0000","#a0ebce"]} data={data.workers} width={500} height={500} transitionTime={2000}
@@ -178,7 +188,7 @@ function(obj){
      axis={{margin:{x:50,y:50}}}/>
     <BallGraph id="ball1" palette={color} data={generateRandomData(data.workers.length).map((e,i) => e = {name: data.workers[i].person,relations: data.workers[i].contacts, ...e},10)} width={500} height={500}
     tooltip={{height:30,width:80,margin:-10,border_width:2}}/>
-    <SelectionSystem accesEntriesDelegate={accesEntries} selectEntriesDelegate={onSelect} unselectEntriesDelegate={onUnSelect}/>
+    <SelectionSystem onToggleEntryDelegate={[handleOnToggle,handleOnToggle]} accesEntriesDelegate={accesEntries} selectEntriesDelegate={onSelect}/>
     </div>,
     document.getElementById("content")
   );

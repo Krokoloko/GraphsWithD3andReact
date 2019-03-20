@@ -12,16 +12,12 @@ export default class SelectionSystem extends React.Component{
       accesEntries: [
         ...this.props.accesEntriesDelegate || [function(){return null}]
       ],
-      toggleEntry: [
+      onToggleEntry: [
         ...this.props.onToggleEntryDelegate || [function(){}]
       ],
       //This is a event that will trigger when you select a element.
       onSelectEntry: [
         ...this.props.selectEntriesDelegate || [function(){}]
-      ],
-      //This is a event that will trigger when you unSelect a element.
-      onUnselectEntry: [
-        ...this.props.unselectEntriesDelegate || [function(){}]
       ],
       //Holds all the elements that can be selected.
       elements: [
@@ -72,14 +68,11 @@ export default class SelectionSystem extends React.Component{
     this.state.elements.forEach(function(d,i){
       elements.push({data:[]});
       d.data.forEach(function(e){
-        console.log(e.getAttribute("selected"));
         if(e.getAttribute("selected") == "true"){
           elements[i].data.push(e);
         }
       });
     });
-    console.log("elements that are selected");
-    console.log(elements);
     return elements;
   }
 
@@ -91,21 +84,16 @@ export default class SelectionSystem extends React.Component{
         d3.select(e)
           .attr('selected', false)
           .on('mousedown',function(){
-            if(e.getAttribute("selected") == "false"){
-              component.state.onToggle[i]({element: e, elements: component.state.elements, selected: component.state.selectedElements});
-              component.state.onSelectEntry[i]({element: e, elements: component.state.elements, selected: component.state.selectedElements});
-              component.setState({
-                ...component.state,
-                selectedElements: component.getSelectedElements()
-              });
-            }else{
-              component.state.onToggle[i]({element: e, elements: component.state.element, selected: component.state.selectedElements});
-              component.state.onUnselectEntry[i]({element: e, elements: component.state.elements, selected: component.state.selectedElements});
-              component.setState({
-                ...component.state,
-                selectedElements: component.getSelectedElements()
-              });
-            }
+            component.setState({
+              ...component.state,
+              selectedElements: component.getSelectedElements()
+            });
+            component.state.onToggleEntry[i]({element: e, elements: component.state.elements, selected: component.state.selectedElements, mouseData : d3.event});
+            component.setState({
+              ...component.state,
+              selectedElements: component.getSelectedElements()
+            });
+            component.state.onSelectEntry[i]({element: e, elements: component.state.elements, selected: component.state.selectedElements, mouseData : d3.event});
           })
           ;
       })

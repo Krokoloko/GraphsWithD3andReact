@@ -21,7 +21,6 @@ export default class BallGraph extends React.Component{
                 border_width: this.props.tooltip.border_width || 1
               }
     }
-    console.log(this.state.data);
   }
 
   updateTooltip(d){
@@ -48,7 +47,6 @@ export default class BallGraph extends React.Component{
     let graph = d3.select("#" + this.props.id)
     .selectAll('circle')
     .data(this.state.data);
-    console.log(graph);
     graph.enter()
     .append('circle')
     .attr('cx', d => xScale(d.x))
@@ -98,7 +96,6 @@ export default class BallGraph extends React.Component{
 
   isSvgLoaded(){
     if(d3.select("#" + this.props.id).empty()){
-      console.log("empty");
       return null;
     }else{
       return <InfoBlock id={this.props.id + "_tooltip"} position={{x:this.state.tooltip.x, y: this.state.tooltip.y}}
