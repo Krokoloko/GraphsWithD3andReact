@@ -12,3 +12,8 @@
   stroke-width: 2px;
   stroke: #000000;
 }
+#line1{
+  border-color: #909090;
+  border-width: 5px;
+  border-style: solid;
+}
