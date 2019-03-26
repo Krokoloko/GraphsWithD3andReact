@@ -183,18 +183,30 @@ function addZeroAtSingleDigit(date){
 getJsonAsObject(window.location.href + "worker_data",
 function(obj){
   data = obj;
-  console.log(new Date(data.workers.find(x => x.person === "Daniel").purchaseHistory[0].date).getFullYear());
+  let purchaseHistories = [];
+  let allDataOneArray = [];
+  data.workers.forEach(function(d){
+    allDataOneArray.push(...d.purchaseHistory);
+    purchaseHistories.push(d.purchaseHistory);
+  })
   ReactDOM.render(
     <div>
-    <BarGraph id="bar1" class="barGraph" palette={["#5a0000","#a0ebce"]} data={data.workers} width={500} height={500} transitionTime={2000}
+    <BarGraph id="bar1" class="barGraph"
+     palette={["#5a0000","#a0ebce"]} data={data.workers} width={500} height={500} transitionTime={2000}
      maxValue={{x:500 , y: Math.max.apply(Math, data.workers.map(function(o){return o.income}))*1.2,
                 c:  Math.max.apply(Math, data.workers.map(function(o){return o.income}))*1.2}}
      tooltip={{}}
      axis={{margin:{x:50,y:50}}}/>
-    <BallGraph id="ball1" palette={color} data={generateRandomData(data.workers.length).map((e,i) => e = {name: data.workers[i].person,relations: data.workers[i].contacts, ...e},10)} width={500} height={500}
+    <BallGraph id="ball1"
+    palette={color} data={generateRandomData(data.workers.length).map((e,i) => e = {name: data.workers[i].person,relations: data.workers[i].contacts, ...e},10)} width={500} height={500}
     tooltip={{height:30,width:80,margin:-10,border_width:2}}/>
-    <LineGraph id="line1" height={500} width={1000} data={data.workers.find(x => x.person ==="Daniel").purchaseHistory.map((e,i,a) => e = {x:e.date,y:e.close,...e})}
-    maxValue={{x: 500,y:Math.max.apply(Math, data.workers.find(x => x.person === "Daniel").purchaseHistory.map(function(o){return o.close}))*1.2}} timeAsAxis={true}/>
+    <LineGraph id="line1"
+    height={500} width={1000} data={purchaseHistories.map(d => d.map(e => e = {x:e.date,y:e.close}))}
+    point={[{radius: 7, color: "rgba(40,100,30,1)", border: 3, border_color: "rgba(255,240,240,1)"},
+            {radius: 7, color: "rgba(30,40,100,1)", border: 3, border_color: "rgba(255,240,240,1)"}/*,
+            {radius: 7, color: "rgba(100,30,40,1)", border: 3, border_color: "rgba(255,240,240,1)"}*/]}
+    line={[{width: 3, color: "rgba(40,180,30,1)"},{width: 3, color: "rgba(30,40,180,1)"},/*{width: 3, color: "rgba(180,30,40,1)"}*/]}
+    maxValue={{x: 500,y:Math.max.apply(Math, allDataOneArray.map(function(o){return o.close}))*1.2}} timeAsAxis={true}/>
     <SelectionSystem onToggleEntryDelegate={[handleOnToggle,handleOnToggle]} accesEntriesDelegate={accesEntries} selectEntriesDelegate={onSelect}/>
     </div>,
     document.getElementById("content")
